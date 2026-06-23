@@ -204,7 +204,7 @@
             font-weight: bold;
         }
 
-        /* Progress counter (replaces dots) */
+        /* Progress counter */
         #progressCounter {
             position: absolute;
             bottom: 15px;
@@ -605,14 +605,16 @@
         }
     </script>
 
+    <!-- Hidden Audio Element -->
+    <audio id="bgMusic" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- Music Controls -->
     <div class="music-controls">
         <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
         <div class="music-label" id="musicLabel">Play</div>
     </div>
-
-    <!-- YouTube Player (hidden) -->
-    <div id="yt-container"></div>
 
     <div id="gameContainer">
         <!-- Start Screen -->
@@ -638,7 +640,7 @@
 
         <canvas id="canvas" width="420" height="650"></canvas>
 
-        <!-- Progress Counter (replaces dots) -->
+        <!-- Progress Counter -->
         <div id="progressCounter">
             Wish <span id="progressCurrent">0</span> of 24
         </div>
@@ -703,62 +705,26 @@
         const envelope = document.getElementById('envelope');
         const musicBtn = document.getElementById('musicBtn');
         const musicLabel = document.getElementById('musicLabel');
+        const bgMusic = document.getElementById('bgMusic');
 
-        // YouTube Video ID - "24" by LANY
-        const YT_VIDEO_ID = 'bUkHkn9Syxg';
-
-        let player;
         let isPlaying = false;
         let isMuted = false;
 
-        // Load YouTube API
-        function loadYouTubeAPI() {
-            const tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        }
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('yt-container', {
-                height: '1',
-                width: '1',
-                videoId: YT_VIDEO_ID,
-                playerVars: {
-                    'autoplay': 0,
-                    'controls': 0,
-                    'loop': 1,
-                    'playlist': YT_VIDEO_ID,
-                    'rel': 0,
-                    'showinfo': 0
-                },
-                events: {
-                    'onReady': onPlayerReady
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            // Player is ready
-        }
-
         function toggleMusic() {
-            if (!player || !player.playVideo) return;
-            
             if (isPlaying && !isMuted) {
-                player.mute();
+                bgMusic.muted = true;
                 musicBtn.textContent = '🔇';
                 musicLabel.textContent = 'Muted';
                 musicBtn.classList.add('muted');
                 isMuted = true;
             } else if (isMuted) {
-                player.unMute();
+                bgMusic.muted = false;
                 musicBtn.textContent = '🎵';
                 musicLabel.textContent = 'Playing';
                 musicBtn.classList.remove('muted');
                 isMuted = false;
             } else {
-                player.playVideo();
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
                 musicBtn.textContent = '🎵';
                 musicLabel.textContent = 'Playing';
                 isPlaying = true;
@@ -766,8 +732,8 @@
         }
 
         function startMusic() {
-            if (player && player.playVideo && !isPlaying) {
-                player.playVideo();
+            if (!isPlaying) {
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
                 musicBtn.textContent = '🎵';
                 musicLabel.textContent = 'Playing';
                 isPlaying = true;
@@ -1045,9 +1011,6 @@
         letterModal.addEventListener('click', (e) => {
             if (e.target === letterModal) closeLetter();
         });
-
-        // Load YouTube API on page load
-        loadYouTubeAPI();
     </script>
 
 </body>
