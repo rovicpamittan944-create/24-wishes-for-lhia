@@ -15,7 +15,6 @@
             position: relative;
         }
 
-        /* Falling daisies background */
         .daisy {
             position: fixed;
             top: -10%;
@@ -47,7 +46,6 @@
             z-index: 1;
         }
 
-        /* Start Screen */
         #startScreen {
             position: absolute;
             top: 0;
@@ -119,7 +117,6 @@
             border-color: #ff9a9e;
         }
 
-        /* Music Controls */
         .music-controls {
             position: fixed;
             top: 20px;
@@ -174,7 +171,6 @@
             border: 1px solid rgba(255,182,193,0.4);
         }
 
-        /* Game UI */
         #gameUI {
             position: absolute;
             top: 0;
@@ -204,7 +200,6 @@
             font-weight: bold;
         }
 
-        /* Progress counter */
         #progressCounter {
             position: absolute;
             bottom: 15px;
@@ -231,7 +226,6 @@
             display: none;
         }
 
-        /* Wish Popup */
         .wish-popup {
             position: absolute;
             top: 50%;
@@ -297,7 +291,6 @@
             border-color: #ff9a9e;
         }
 
-        /* Final Screen */
         #finalScreen {
             display: none;
             position: absolute;
@@ -340,7 +333,6 @@
             max-width: 320px;
         }
 
-        /* Envelope */
         .envelope-section {
             width: 100%;
             display: flex;
@@ -433,7 +425,6 @@
             z-index: 3;
         }
 
-        /* Letter Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -605,11 +596,6 @@
         }
     </script>
 
-    <!-- Hidden Audio Element -->
-    <audio id="bgMusic" loop>
-        <source src="song.mp3" type="audio/mpeg">
-    </audio>
-
     <!-- Music Controls -->
     <div class="music-controls">
         <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
@@ -705,7 +691,11 @@
         const envelope = document.getElementById('envelope');
         const musicBtn = document.getElementById('musicBtn');
         const musicLabel = document.getElementById('musicLabel');
-        const bgMusic = document.getElementById('bgMusic');
+
+        // Create audio object
+        let bgMusic = new Audio('song.mp3');
+        bgMusic.loop = true;
+        bgMusic.volume = 0.7;
 
         let isPlaying = false;
         let isMuted = false;
@@ -724,19 +714,29 @@
                 musicBtn.classList.remove('muted');
                 isMuted = false;
             } else {
-                bgMusic.play().catch(e => console.log('Audio play failed:', e));
-                musicBtn.textContent = '🎵';
-                musicLabel.textContent = 'Playing';
-                isPlaying = true;
+                bgMusic.play().then(() => {
+                    musicBtn.textContent = '🎵';
+                    musicLabel.textContent = 'Playing';
+                    isPlaying = true;
+                }).catch(e => {
+                    console.log('Audio play failed:', e);
+                    alert('Tap the 🎵 button to play music!');
+                });
             }
         }
 
         function startMusic() {
             if (!isPlaying) {
-                bgMusic.play().catch(e => console.log('Audio play failed:', e));
-                musicBtn.textContent = '🎵';
-                musicLabel.textContent = 'Playing';
-                isPlaying = true;
+                bgMusic.play().then(() => {
+                    musicBtn.textContent = '🎵';
+                    musicLabel.textContent = 'Playing';
+                    isPlaying = true;
+                }).catch(e => {
+                    console.log('Audio play failed (autoplay blocked):', e);
+                    // Show button as ready to play
+                    musicBtn.textContent = '▶️';
+                    musicLabel.textContent = 'Tap to play';
+                });
             }
         }
 
@@ -882,7 +882,6 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Soft clouds
             ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             for (let i = 0; i < 4; i++) {
                 const t = Date.now() / 2000 + i;
@@ -962,10 +961,9 @@
             showingWish = false;
             gameLoop();
 
-            // Fixed spawn rate — never speeds up
             spawnInterval = setInterval(spawnItem, 1000);
             
-            // Start music when game begins
+            // Try to start music
             startMusic();
         }
 
